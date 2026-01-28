@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login with Phone OTP</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 50px; }
+    input { padding: 10px; font-size: 16px; width: 200px; }
+    button { padding: 10px 20px; font-size: 16px; margin-left: 10px; }
+    #otp-section { display: none; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h2>Login with Phone Number</h2>
+
+  <div id="login-section">
+    <input id="phone" type="text" placeholder="+3706XXXXXXX" />
+    <button onclick="requestOTP()">Send OTP</button>
+  </div>
+
+  <div id="otp-section">
+    <input id="otp" type="text" placeholder="Enter OTP" />
+    <button onclick="verifyOTP()">Verify OTP</button>
+  </div>
+
+  <p id="message"></p>
+
+<script>
+async function requestOTP() {
+  const phone = document.getElementById('phone').value;
+  const res = await fetch('/api/request-otp', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phone })
+  });
+
+  if (res.ok) {
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('otp-section').style.display = 'block';
+    document.getElementById('message').innerText = "OTP has been sent via voice call!";
+  } else {
+    document.getElementById('message').innerText = "Error sending OTP!";
+  }
+}
+
+async function verifyOTP() {
+  const phone = document.getElementById('phone').value;
+  const otp = document.getElementById('otp').value;
+  const res = await fetch('/api/verify-otp', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phone, otp })
+  });
+
+  const data = await res.json();
+  if (data.success) {
+    document.getElementById('message').innerText = "✅ OTP Verified! Logged in.";
+    document.getElementById('otp-section').style.display = 'none';
+  } else {
+    document.getElementById('message').innerText = "❌ Invalid OTP.";
+  }
+}
+</script>
+</body>
+</html>
